@@ -1,0 +1,31 @@
+numpy
+pandas
+pyarrow
+sentence-transformers>=2.2.2
+tqdm
+faiss-cpu  # or faiss-gpu if you have GPU
+uvicorn
+fastapi
+python-dotenv
+regex
+unidecode
+streamlit
+requests
+scikit-learn
+
+transformers>=4.44.0
+torch>=2.1.0
+accelerate>=0.23.0
+
+# LLM providers (install based on your choice)
+# For local Ollama (recommended for free usage):
+# - No additional packages needed, just requests
+
+# For OpenAI (optional):
+openai>=1.0.0
+
+# For Anthropic Claude (optional):
+anthropic>=0.7.0
+
+# For xAI Grok (optional):
+# - Uses openai package with different base URL
