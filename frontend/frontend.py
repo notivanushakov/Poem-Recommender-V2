@@ -81,6 +81,10 @@ if "language" not in st.session_state:
     st.session_state.language = "en"
 if "use_llm" not in st.session_state:
     st.session_state.use_llm = True
+if "api_key_entered" not in st.session_state:
+    st.session_state.api_key_entered = False
+if "stored_api_key" not in st.session_state:
+    st.session_state.stored_api_key = ""
 
 # Translations
 TRANSLATIONS = {
@@ -160,22 +164,53 @@ TRANSLATIONS = {
 lang = st.session_state.language
 t = TRANSLATIONS[lang]
 
+# API Key Gate Screen
+if not st.session_state.api_key_entered:
+    st.title("📜 Poem Recommender")
+    st.markdown("### Welcome! Please enter your OpenAI API key to continue")
+    st.markdown("""This app requires an OpenAI API key for full functionality including:
+    - Semantic search with LLM-powered intent detection
+    - Cross-language understanding
+    - Author matching and translations
+    - Similarity explanations
+    """)
+    
+    with st.form("api_key_form"):
+        api_key_input = st.text_input(
+            "OpenAI API Key",
+            type="password",
+            placeholder="sk-...",
+            help="Get your API key from https://platform.openai.com/api-keys"
+        )
+        submit = st.form_submit_button("Continue", type="primary")
+        
+        if submit:
+            if api_key_input and api_key_input.startswith("sk-"):
+                st.session_state.stored_api_key = api_key_input
+                st.session_state.api_key_entered = True
+                st.rerun()
+            else:
+                st.error("Please enter a valid OpenAI API key (starts with 'sk-')")
+    
+    st.stop()  # Don't render anything else until key is entered
+
+# Use stored API key
+api_key = st.session_state.stored_api_key
+
 # Sidebar
 with st.sidebar:
     st.header(t["settings"])
     
-    # OpenAI API Key input
+    # Show API key status
     st.subheader("🔑 API Configuration")
-    api_key = st.text_input(
-        "OpenAI API Key (optional)",
-        type="password",
-        help="Enter your OpenAI API key to enable translations and explanations. Leave empty to use basic search only.",
-        key="openai_api_key"
-    )
     if api_key:
-        st.success("✅ API Key configured - Full features enabled")
+        st.success("✅ API Key configured")
+        if st.button("Change API Key"):
+            st.session_state.api_key_entered = False
+            st.session_state.stored_api_key = ""
+            st.rerun()
     else:
-        st.info("ℹ️ No API key - Basic search available")
+        st.warning("⚠️ No API key")
     
     st.divider()
     
