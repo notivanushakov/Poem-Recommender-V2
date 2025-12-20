@@ -1,9 +1,22 @@
 # Streamlit Cloud Deployment Guide
 
+## 🚨 IMPORTANT: Backend Requirement
+
+**If you're seeing connection errors like:**
+```
+HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded
+```
+
+**This means you need to deploy the backend separately!**
+
+👉 **See [BACKEND_DEPLOYMENT.md](BACKEND_DEPLOYMENT.md) for step-by-step instructions** to deploy the backend on Render, Railway, or Fly.io (free tiers available).
+
+---
+
 ## Overview
 This application can be deployed to Streamlit Cloud for free hosting. The app consists of:
 - **Frontend**: Streamlit interface (automatically deployed)
-- **Backend**: FastAPI server (needs to run alongside)
+- **Backend**: FastAPI server (needs to be deployed separately)
 
 ## ⚠️ Important Notes
 

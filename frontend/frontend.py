@@ -6,9 +6,23 @@ import os
 from typing import List, Dict
 from datetime import datetime
 
-API_URL = "http://localhost:8000"
+# Support environment variable for backend URL (for cloud deployments)
+# Try Streamlit secrets first, then environment variable, then default
+try:
+    API_URL = st.secrets.get("BACKEND_URL", os.getenv("BACKEND_URL", "http://localhost:8000"))
+except:
+    API_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 st.set_page_config(page_title="Poem Recommender", layout="wide", initial_sidebar_state="expanded")
+
+# Backend health check
+def check_backend_available(url: str) -> bool:
+    """Check if backend is available"""
+    try:
+        r = requests.get(url.rstrip("/") + "/health", timeout=5)
+        return r.status_code == 200
+    except:
+        return False
 
 # Session persistence helpers
 SESSION_CACHE_DIR = ".streamlit_cache"
@@ -190,6 +204,15 @@ with st.sidebar:
     
     # API settings
     api_url = st.text_input(t["api_url"], value=API_URL)
+    
+    # Backend status check
+    backend_status = check_backend_available(api_url)
+    if backend_status:
+        st.success("✅ Backend connected")
+    else:
+        st.error("⚠️ Backend not available")
+        st.warning("Deploy the backend to use full features. See [DEPLOYMENT.md](DEPLOYMENT.md)")
+    
     k = st.slider(t["top_k"], 1, 20, 8)
     
     st.divider()
@@ -231,6 +254,8 @@ def call_chat_api(text: str, k: int = 8, language: str = "en"):
         r = requests.post(url, json=payload, headers=get_headers(), timeout=30)
         r.raise_for_status()
         return r.json()
+    except requests.exceptions.ConnectionError:
+        return {"error": "❌ Backend server is not available. Please deploy the backend separately or run it locally. See deployment instructions."}
     except Exception as e:
         return {"error": str(e)}
 
@@ -242,6 +267,8 @@ def call_chat_llm(text: str, k: int = 8, language: str = "en"):
         r = requests.post(url, json=payload, headers=get_headers(), timeout=30)
         r.raise_for_status()
         return r.json()
+    except requests.exceptions.ConnectionError:
+        return {"error": "❌ Backend server is not available. Please deploy the backend separately or run it locally. See deployment instructions."}
     except Exception as e:
         return {"error": str(e)}
 

@@ -407,6 +407,16 @@ def make_poem_result(idx: int, score: float, language: str = "en") -> Dict[str,A
 # -------------------
     # (Deprecated startup event removed; using lifespan handler instead)
 
+@app.get("/health")
+def health_check():
+    """Health check endpoint for deployment and frontend status checking"""
+    return {
+        "status": "healthy",
+        "model_loaded": model is not None,
+        "poem_index_loaded": poem_index is not None,
+        "author_index_loaded": author_index is not None
+    }
+
 @app.post("/search/poems")
 def search_poems(q: TextQuery):
     txt = q.text
